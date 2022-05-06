@@ -1,0 +1,147 @@
+---
+title: "데이터의 이해"
+author: 유충현
+output: 
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+    language: ko
+runtime: shiny_prerendered
+tutorial:
+  id: "io.choonghyunryu.ranalytics.01-understand-data"
+  version: 1.0
+---
+
+```{r setup, include=FALSE, message=FALSE}
+library(learnr)
+library(gradethis)
+
+library(IntroRA)
+library(extrafont)
+
+checker <- function(label, user_code, check_code, envir_result, evaluate_result, ...) {
+  list(message = check_code, correct = TRUE, location = "append")
+}
+tutorial_options(exercise.timelimit = 60, exercise.checker = checker)
+knitr::opts_chunk$set(error = TRUE, out.width = "100%")
+```
+
+## 개요
+
+이 튜토리얼은 **데이터의 구조를 이해**하고, **외부 데이터 파일을 R로 가져오는 방법**을 배우는 것을 도와줍니다. 다음의 방법을 배우게 됩니다.:
+
+-   데이터 구조의 이해
+-   **양적 변수**와 **질적 변수**의 이해
+-   외부 데이터 파일 가져오기
+-   **데이터 프레임(data frame)** 이해하기
+-   기초적인 데이터 조작
+
+이 튜토리얼은 인사이트에서 출판한 *초보자를 위한 R 데이터 분석*(유충현 저, 2021, ISBN-1234567890)에서 발췌/편집되었습니다. 이 책은 <http://ebook.insightbook.co.kr> 및 오라인/오프라인 서점에서 구입하실 수 있습니다.
+
+## 데이터의 이해
+
+### 데이터의 정의
+
+데이터는 다음과 같이 정의할 수 있습니다.
+
+> 데이터는 질적(qualitative) 또는 양적(quantitative) 변수(variables) 값(values)의 집합(set)입니다.
+
+다음은 가상의 `성적 데이터`입니다. 모든 데이터가 이와 같은 구조를 갖지는 않지만, 데이터 분석을 위한 대부분 데이터는 이와 같은 구조를 가집니다.
+
+```{r data_img, fig.align='center', echo=FALSE, out.width = '85%'}
+library(png)
+library(grid)
+appimg <- readPNG('img/data.png')
+grid.raster(appimg)
+```
+
+-   국어점수처럼 열(columes)들을 변수라 부르고, 연놀부 학생의 정보와 같은 행(rows)을 관측치 (observations)라 부릅니다.
+-   통계학에서 관측치(observations)는 조사나 실험 등을 통해 개별 대상에서 관측된 사례의 값을 의미한다.
+-   그러므로, 그림의 성적 데이터는 8개의 변수와 50개의 관측치로 구성었습다.
+
+### 변수
+
+변수는 값의 유형(types)에 따라 양적 변수(quanitive variable, 정량적 자료)와 질적 변수(qualitative variable, 정성적 자료)로 구분합니다.
+
+```{r data_quiz, echo = FALSE}
+quiz(caption = "데이터 구조",
+  question("데이터를 구성하는 요소가 아닌 것은 무엇인가요?",
+           answer("변수", message = "국어점수, 영어점수와 같은 열들은 변수라고 부릅니다."),
+           answer("집합", correct = TRUE),
+           answer("관측치", message = "통계학에서는 데이터 구조에서의 행(rows)을 관측치라 부릅니다."),
+           answer("값", message = "관측치와 변수가 교차하는 위치의 단일 데이터를 값이라고 합니다."),
+           allow_retry = TRUE
+  )
+)
+```
+
+
+### 연습문제 1 - 텍스트 파일 데이터 읽기
+
+다음 그림의 기말고사 성적 데이터가 '성적데이터.txt'라는 텍스트 파일로 'data'라는 디렉터리에 보관되어 있습니다.
+
+```{r data_txt, fig.align='center', echo=FALSE, out.width = '65%'}
+appimg <- readPNG('img/data_txt.png')
+grid.raster(appimg)
+```
+
+```{r init_data, echo=FALSE}
+fname <- system.file("data/성적데이터.txt", package = "IntroRA")
+dir.create("./data")
+tmp <- file.copy(fname, "./data/")
+#scores <- read.table(file = "data/성적데이터.txt", header = TRUE, fileEncoding = "cp949")
+```
+
+이 성적 데이터 파일을 `read.table()` 함수로 읽어서 scores라는 이름의 데이터 프레임을 만들어 보세요.  
+예제 콘솔에는 완성되지 않은 `read.table()` 함수의 세 인수가 있습니다. 이를 채워 완성하세요. 
+
+* file : 파일 이름의 문자열을 기술합니다.
+* header : 파일에는 컬럼 이름을 의미하는 헤더가 있습니다. 논리값으로 헤더 사용을 설정합니다.
+* fileEncoding : 한글은 **cp949**로 인코딩 되어 있습니다. 이를 `read.table()` 함수에 알려줘야 합니다.
+
+```{r readtxt, exercise = TRUE, exercise.setup = "init_data"}
+# file, header, fileEncoding 세 인수값을 완성해 보세요.
+scores <- read.table(file, header, fileEncoding)
+scores
+```
+
+```{r readtxt-solution}
+scores <- read.table(file = "data/성적데이터.txt", header = TRUE, fileEncoding = "cp949")
+scores
+```
+
+
+### 연습문제 2 - 데이터 시각화
+
+scores 데이터 프레임을 사용하여, 성별로 국어점수 분포의 차이를 비교해 보세요.
+ggplot2 패키지의 `geom_density()` 함수를 사용는 콘솔의 스크립트를 완성세요.
+
+* data : 데이터 프레임의 이름을 기술합니다.
+* x : x-축에 표현할 수치형 변수의 이름을 지정합니다. 예제에서는 `국어점수`입니다.
+* fill : 색상으로 구분할 범주형 변수의 이름을 지정합니다. 예제에서는 `성별`입니다.
+
+```{r init_data2, echo=FALSE}
+fname <- system.file("data/성적데이터.txt", package = "IntroRA")
+dir.create("./data")
+tmp <- file.copy(fname, "./data/")
+scores <- read.table(file = "data/성적데이터.txt", header = TRUE, fileEncoding = "cp949")
+```
+
+```{r data_viz, warning=FALSE, exercise = TRUE, exercise.setup = "init_data2"}
+library(ggplot2)
+
+ggplot(data = ___, aes(x = ___, fill = 성별)) + 
+  geom_density(alpha = 0.5, colour = "black") +
+  ggtitle("성별 성적 히스토그램", sub = "양적변수 : 국어점수") +
+  theme(text = element_text(family = "NanumGothic"))
+```
+
+```{r data_viz-solution}
+library(ggplot2)
+
+ggplot(data = scores, aes(x = 국어점수, fill = 성별)) + 
+  geom_density(alpha = 0.5, colour = "black") +
+  ggtitle("성별 성적 히스토그램", sub = "양적변수 : 국어점수") +
+  theme(text = element_text(family = "NanumGothic"))
+```
+

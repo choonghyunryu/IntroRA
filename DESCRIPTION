@@ -1,0 +1,17 @@
+Package: IntroRA
+Type: Package
+Title: Education Resouces for Data Acnalysis
+Version: 0.1.0
+Authors@R: c(
+  person("Choonghyun", "Ryu",, "choonghyun.ryu@gmail.com", role = c("aut", "cre"))
+  )
+Description: Resouces for the book that is "R data analysis for beginners".
+License: GPL-2 | file LICENSE
+Encoding: UTF-8
+LazyData: false
+Depends:
+    R (>= 3.2.0)
+Imports: 
+    learnr (>= 0.10.1.9022)
+Author: Choonghyun Ryu [aut, cre]
+Maintainer: Choonghyun Ryu <choonghyun.ryu@gmail.com>        
